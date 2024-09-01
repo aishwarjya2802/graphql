@@ -1,0 +1,220 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-attachment: fixed;
+}
+
+.glow {
+  font-size: 70px;
+  font-family: serif;
+  color: #9900cc;
+  text-align: center;
+  animation: glow 1s ease-in-out infinite alternate;
+}
+
+@-webkit-keyframes glow {
+  from {
+    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #0075ff, 0 0 40px #0075ff, 0 0 50px #0075ff, 0 0 60px #0075ff, 0 0 70px #0075ff;
+  }
+ 
+  to {
+    text-shadow: 0 0 20px #fff, 0 0 30px #00ffd3, 0 0 40px #00ffd3, 0 0 50px #00ffd3, 0 0 60px #00ffd3, 0 0 70px #00ffd3, 0 0 80px #00ffd3;
+  }
+}
+
+
+.backgroundImage {
+    background-color: #0e0e0e;
+    background-image: url("./background.jpg");  
+    background-size: cover;
+    background-repeat: no-repeat
+  }
+
+.centerblock {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+}
+
+.error {
+    margin-top: 150px;
+}
+
+.login {
+    width: 500px;
+    height: 500px;
+    color: #ffffff;
+    display: block;
+    font-family: serif;
+    font-size: 80px;
+    box-sizing: border-box;
+    border-radius: 7px;
+    background-color: #9900cc;
+    font-size: 16px;
+}
+
+.login-logo {
+    width: 100px;
+    padding: 20px;
+    height: auto;
+    margin: 0 auto 20px;
+    display: block;
+}
+
+
+.login input[type=username],input[type=password] {
+    width: 350px;
+    padding: 5px 5px;
+    margin: 15px;
+    box-sizing: border-box;
+    border-radius: 4px;
+}
+
+.login input[type=submit] {
+    width: 100%;
+    display: block;
+    margin-top: 20px;
+    padding: 8px 12px; 
+    border: none;
+    border-radius: 5px;
+    background-color: #4d79ff; 
+    color: #ffff; 
+    cursor: pointer;
+    font-size: 16px; 
+    transition: background-color 0.3s ease;
+}
+
+.login input[type=submit]:hover {
+    background-color: #0056b3;
+}
+
+.wrapper {
+    padding: 10px;
+}
+.container {
+    display: block;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+.children {
+    display: block;
+    float: left; 
+    padding: 15px;
+    margin: 10px;
+    width: 480px;
+    height: 280px;
+    color: #ffffff;
+    font-family: serif;
+    font-size: 80px;
+    box-sizing: border-box;
+    border-radius: 7px;
+    background-color: #9900cc;
+    font-size: 16px;
+}
+
+.children h1 {
+    font-size: 30px;
+    padding: 0px;
+    margin: 25px;
+}
+
+.children :is( h2, h3, h4, h5, h6) {
+    font-size: 18px;
+    padding: 0px;
+    margin: 25px;
+}
+
+.test {
+    padding: 50px;
+    margin: 50px;
+    width: 800px;
+}
+
+.svg {
+    display: flex;
+    align-items: flex-start;
+    margin-right: 20px;
+}
+
+.chart-container {
+    width: 1400px;
+    height: 700px;
+    position: center;
+    margin: 10px auto;
+    border-radius: 7px;
+    padding: 50px;
+}
+
+.chart-container p {
+    padding: 0px;
+    margin: 0px;
+    color: white;
+    font-size: 25px;
+}
+
+.tooltip {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: rgb(255, 255, 255);
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 14px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.chart-line {
+    fill: none;
+    stroke: white;
+    stroke-width: 1.5;
+}
+
+.chart-dot {
+    fill: white;
+}
+
+.chart-axis {
+    stroke: #ffffff;
+    stroke-width: 1;
+}
+
+.axis-label {
+    fill: #ffffff;
+    font-size: 25px;
+}
+
+.backbutton-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.backbutton {
+    display: block;
+    width: 100px;
+    padding: 8px 12px;
+    text-align: center;
+    border: none;
+    border-radius: 5px;
+    background-color: #9900cc;
+    color: #fff;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    text-decoration: none;
+}
+
+.backbutton:hover {
+    background-color: #0056b3;
+}
+
