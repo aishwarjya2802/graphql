@@ -1,4 +1,5 @@
 import { performRequest } from './auth.js';
+import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7/+esm'; // Import D3 for bar chart rendering
 
 const mainBlock = document.getElementById("main");
 
@@ -6,7 +7,8 @@ const storedAccessToken = localStorage.getItem('accessToken');
 
 export async function renderUserDashboard(storedAccessToken) {
     mainBlock.innerHTML = '';
-    
+
+    // Define the GraphQL query for user data
     let query = `
         {
             user {
@@ -31,6 +33,7 @@ export async function renderUserDashboard(storedAccessToken) {
         }
     `;
 
+    // Fetch user level
     const fetchUserLevel = async (userID) => {
         const levelQuery = `
         {
@@ -42,15 +45,16 @@ export async function renderUserDashboard(storedAccessToken) {
                 amount
             }
         }
-    `;
-
+        `;
         const levelResponse = await performRequest(levelQuery, storedAccessToken);
         return levelResponse.data.transaction[0]?.amount || 'N/A';
     };
 
+    // Fetch user data
     let userData = await performRequest(query, storedAccessToken);
     const userLevel = await fetchUserLevel(userData.data.user[0].id);
 
+    // Create user info section
     const userInfoSection = document.createElement("div");
     userInfoSection.innerHTML = `
         <div class="wrapper">
@@ -60,13 +64,15 @@ export async function renderUserDashboard(storedAccessToken) {
                 <div class="children svg" id="auditRatioGraph"></div>
             </div>
             <div id="xpProgressGraph" class="chart-container"></div><br><br>
-	    <div class="backbutton-container">
-	    	<a class="backbutton" href="#" id="logoutButton">Logout</a>
-	    <div>
+            <div id="projectXPChart" class="chart-container"></div><br><br>
+            <div class="backbutton-container">
+                <a class="backbutton" href="#" id="logoutButton">Logout</a>
+            </div>
         </div>
     `;
     mainBlock.appendChild(userInfoSection);
-    
+
+    // Handle logout
     const logoutButton = document.getElementById('logoutButton');
     logoutButton.addEventListener('click', handleLogout);
 
@@ -76,6 +82,7 @@ export async function renderUserDashboard(storedAccessToken) {
         window.location.reload();
     }
 
+    // Populate user info
     const userInfo = document.getElementById("userInfo");
     userInfo.innerHTML = `
         <h2>${userData.data.user[0].firstName} ${userData.data.user[0].lastName}</h2>
@@ -85,15 +92,17 @@ export async function renderUserDashboard(storedAccessToken) {
         <h3>tel. ${userData.data.user[0].attrs.tel}</h3>
     `;
 
+    // Display XP amount and level
     const xpAmountDisplay = document.getElementById("xpDisplay");
     const totalXP = userData.data.user[0].transactions.reduce((total, transaction) => total + transaction.amount, 0);
     xpAmountDisplay.innerHTML = `
         <h2>XP Amount:</h2>
-        <h2 style="font-size:40px; color:#fff; text-align:center;">${Math.ceil(totalXP/1000)} kB</h2>
+        <h2 style="font-size:40px; color:#fff; text-align:center;">${Math.ceil(totalXP / 1000)} kB</h2>
         <h2>Level:</h2> 
         <h2 style="font-size:40px; color:#fff; text-align:center;">${userLevel}</h2>
     `;
 
+    // Display audit ratio chart
     const upTxCount = (userData.data.user[0].totalUp / 1000000).toFixed(2);
     const downTxCount = (userData.data.user[0].totalDown / 1000000).toFixed(2);
     const auditTotalCount = parseFloat(downTxCount) + parseFloat(upTxCount);
@@ -161,6 +170,133 @@ export async function renderUserDashboard(storedAccessToken) {
         currentX += sectionWidth;
     });
 
+    // Fetch project XP data and render the bar chart
+    const fetchProjectXP = async () => {
+        const query = `
+            {
+                transaction(
+                    where: {type: {_eq: "xp"}, object: {type: {_eq: "project"}}},
+                    order_by: {createdAt: desc}
+                ) {
+                    amount
+                    object {
+                        name
+                    }
+                    createdAt
+                }
+            }
+        `;
+
+        try {
+            const response = await performRequest(query, storedAccessToken);
+            if (response.errors) {
+                console.error('Error fetching data:', response.errors);
+                return [];
+            }
+            return response.data.transaction;
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            return [];
+        }
+    };
+
+    const processProjectXPData = (transactions) => {
+        const projectXPMap = transactions.reduce((acc, { amount, object }) => {
+            const name = object.name;
+            if (!acc[name]) {
+                acc[name] = { Name: name, XP: 0 };
+            }
+            acc[name].XP += amount;
+            return acc;
+        }, {});
+
+        return Object.values(projectXPMap);
+    };
+
+    const renderBarChart = (data) => {
+        const margin = { top: 20, right: 30, bottom: 60, left: 80 }; // Adjust margins as needed
+        const chartWidth = 1400 - margin.left - margin.right;
+        const chartHeight = 700 - margin.top - margin.bottom;
+
+        const svg = d3.select('#projectXPChart')
+            .append('svg')
+            .attr('width', chartWidth + margin.left + margin.right)
+            .attr('height', chartHeight + margin.top + margin.bottom)
+            .append('g')
+            .attr('transform', `translate(${margin.left},${margin.top})`);
+
+        const x = d3.scaleBand()
+            .domain(data.map(d => d.Name))
+            .range([0, chartWidth])
+            .padding(0.2); // Space between bars
+
+        const y = d3.scaleLinear()
+            .domain([0, d3.max(data, d => d.XP)])
+            .nice()
+            .range([chartHeight, 0]);
+
+        svg.append('g')
+            .selectAll('.bar')
+            .data(data)
+            .enter().append('rect')
+            .attr('class', 'bar')
+            .attr('x', d => x(d.Name))
+            .attr('y', d => y(d.XP))
+            .attr('width', x.bandwidth())
+            .attr('height', d => chartHeight - y(d.XP))
+            .attr('fill', '#9900cc');
+
+        svg.append('g')
+            .attr('class', 'x-axis')
+            .attr('transform', `translate(0,${chartHeight})`)
+            .call(d3.axisBottom(x).tickSize(0).tickPadding(10))
+            .selectAll('text')
+            .attr('fill', '#fff')
+            .attr('font-size', '16px')
+            .attr('text-anchor','start')
+            .attr('transform', 'rotate(-90)')
+            .attr('dy', '0.7em') // Adjust vertical positioning of text
+            .attr('x', 8) // Offset x-axis labels from the x-axis
+            .attr('y', -10); // Offset x-axis labels from the x-axis
+
+        svg.append('g')
+            .attr('class', 'y-axis')
+            .call(d3.axisLeft(y).ticks(10).tickSize(0).tickFormat(d => d / 1000)) // Format y-axis labels
+            .selectAll('text')
+            .attr('fill', '#fff')
+            .attr('font-size', '16px');
+    
+        // Adding axis titles
+        svg.append('text')
+            .attr('class', 'x-axis-title')
+            .attr('transform', `translate(${chartWidth / 2},${chartHeight + margin.bottom - 10})`)
+            .attr('text-anchor', 'middle')
+            .attr('fill', '#fff')
+            .attr('font-size', '20px')
+            .text('Projects');
+
+        svg.append('text')
+            .attr('class', 'y-axis-title')
+            .attr('transform', 'rotate(-90)')
+            .attr('x', -chartHeight / 2)
+            .attr('y', -margin.left + 20)
+            .attr('text-anchor', 'middle')
+            .attr('fill', '#fff')
+            .attr('font-size', '20px')
+            .text('XP');
+
+        svg.selectAll('.x-axis path, .x-axis line').attr('stroke', '#fff');
+        svg.selectAll('.y-axis path, .y-axis line').attr('stroke', '#fff');
+
+    };
+
+
+
+    const transactions = await fetchProjectXP();
+    const processedData = processProjectXPData(transactions);
+    renderBarChart(processedData);
+
+    // XP Progression chart
     const xpGraphSection = document.getElementById('xpProgressGraph');
     xpGraphSection.innerHTML = `
         <div class="chart-container">
@@ -325,6 +461,7 @@ export async function renderUserDashboard(storedAccessToken) {
     }
 
     addAxisTicks();
+    
 
     const tooltipElement = document.getElementById('tooltip');
 
