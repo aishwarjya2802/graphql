@@ -28,7 +28,8 @@ html, body {
     background-color: #0e0e0e;
     background-image: url("./background.jpg");  
     background-size: cover;
-    background-repeat: no-repeat
+    background-repeat: no-repeat;
+    background-attachment: fixed;
   }
 
 .centerblock {
@@ -47,6 +48,7 @@ html, body {
 }
 
 .login {
+    flex: wrap;
     width: 500px;
     height: 500px;
     color: #ffffff;
@@ -98,7 +100,7 @@ html, body {
     padding: 10px;
 }
 .container {
-    display: block;
+    flex: wrap;
     overflow: hidden;
     display: flex;
     justify-content: center;
@@ -195,8 +197,8 @@ html, body {
 
 .backbutton-container {
     display: flex;
-    justify-content: center;
-    margin: 20px 0;
+    justify-content: center; /* Horizontally centers the button */
+    margin: 20px 0; /* Adds some spacing around the container */
 }
 
 .backbutton {
@@ -217,4 +219,3 @@ html, body {
 .backbutton:hover {
     background-color: #0056b3;
 }
-
