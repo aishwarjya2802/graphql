@@ -4,7 +4,7 @@ The objective of this project is to learn the GraphQL query language, by creatin
 
 #### Test Program 🧑‍💻
 
-You can simply run the go [here]() to test the program.
+You can simply run the go [here](https://aishwarjya2802.github.io/graphql/) to test the program.
 
 
 ## ©Aishwarjya Bhattacharjee 👩‍💻
